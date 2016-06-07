@@ -40,16 +40,15 @@ def tissue_segmentation(save_path,segmented_image, type, info):
 
 
 
-parser = argparse.ArgumentParser(description='Tissue segmentation')
-parser.add_argument("-o",required=True, type=str, help="path to save result folder")
-parser.add_argument("-s",required=True, type=str, help="segmented image")
-parser.add_argument("-type",required=True, type=str,choices=['GM'], help="segmentation type")
-parser.add_argument("-info",choices=['freesurfer'],type=str, help="type of info data")
-args = parser.parse_args()
-print args
-
-
 if __name__=="__main__":
+
+    parser = argparse.ArgumentParser(description='Tissue segmentation')
+    parser.add_argument("-o",required=True, type=str, help="path to save result folder")
+    parser.add_argument("-s",required=True, type=str, help="segmented image")
+    parser.add_argument("-type",required=True, type=str,choices=['GM'], help="segmentation type")
+    parser.add_argument("-info",choices=['freesurfer'],type=str, help="type of info data")
+    args = parser.parse_args()
+    print args
 
     with Timer() as t:
         tissue_segmentation(args.o, args.s,args.type, args.info)
