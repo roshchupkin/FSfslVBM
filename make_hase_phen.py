@@ -16,6 +16,7 @@ print args
 
 df=pd.read_csv(args.id, index_col=0)
 
+print df.head()
 subject_id=[]
 
 for i in df.iterrows():

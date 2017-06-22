@@ -20,7 +20,7 @@ def get_images_list(path, regexp, number_images=None):
     im_list=[i for i in dir_list for m in [reg.search(i)] if m]
     if isinstance(number_images, type(None) ):
         if len(im_list)!=int(number_images):
-            raise Exception("set numbers of images have to be the same with numbers images in directory!")
+            raise Exception("set number of images have to be the same with number images in directory!")
     return im_list
 
 
@@ -28,8 +28,8 @@ def delete_arrays(path_4d, region_code):
     '''delete temporal arrays '''
     p=1
     while True:
-        if os.path.isfile( os.path.join(path_4d, region_code +'_'+str(p) + ".npy" ) ):
-            os.remove(os.path.join(path_4d, region_code +'_'+str(p) + ".npy" ))
+        if os.path.isfile( os.path.join(path_4d, str(region_code) +'_'+str(p) + ".npy" ) ):
+            os.remove(os.path.join(path_4d, str(region_code) +'_'+str(p) + ".npy" ))
             p+=1
         else:
             break
@@ -42,8 +42,8 @@ def convert_array_for_regression(path_4d, region_code, split_size=1000):
     p=1
     while True:
         try:
-            regression_data.append(np.load( os.path.join(path_4d, region_code +'_'+str(p) + ".npy" ) ) )
-            print region_code +'_' +str(p) + ".npy"
+            regression_data.append(np.load( os.path.join(path_4d, str(region_code) +'_'+str(p) + ".npy" ) ) )
+            print str(region_code) +'_' +str(p) + ".npy"
             p+=1
         except:
             break
@@ -87,13 +87,15 @@ def save_4d_data(Hammer_atlas, image_path, path_4d, image_names):
             for k in data_4d:
                 data_4d[k].append(images_data[region_coodinates[k]])
         except:
-            print str(im) + "Error during reading image"
+            raise ValueError("Error during reading image {}".format(str(im)))
 
     for c in region_codes:
+            c=int(c)
             np_4d=np.array(data_4d[c])
             print np_4d.shape
             np.save(os.path.join(path_4d, str(c) +"_" + str(1)) ,  np_4d )
             convert_array_for_regression(path_4d, c)
+            delete_arrays(path_4d, c)
 
 
 def save_4d_data_region(logs_dir, atlas, image_path, path_4d, region_code, regexp='NO'):
@@ -113,7 +115,9 @@ def save_4d_data_region(logs_dir, atlas, image_path, path_4d, region_code, regex
 
     data_4d=[]
     part=1
-    coordinate=np.where(atlas._data==int(region_code) ) #TODO raise error if there is no such code
+    coordinate=np.where(atlas._data==int(region_code) )
+    if coordinate[0].shape[0]==0:
+        raise ValueError('Region code {} does not exist'.format(region_code))
     count=0
     for im in image_names:
     # reading all images and dump nparrays by voxels in region by 1000 images
@@ -131,7 +135,7 @@ def save_4d_data_region(logs_dir, atlas, image_path, path_4d, region_code, regex
                     part+=1
                     count=0
             except:
-                print str(im) + "Error during reading image"
+                raise ValueError("Error during reading image {}".format(str(im)))
 
     if count!=0:
         np_4d=np.array(data_4d)
